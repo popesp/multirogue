@@ -16,4 +16,4 @@ server.on("error", function(error)
 	throw error;
 });
 
-server.listen(3000);
+server.listen(port);
