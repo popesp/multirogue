@@ -1,6 +1,8 @@
 const WebSocket = require("websocket");
 const http = require("http");
 
+let player1, player2;
+
 const server_http = http.createServer();
 server_http.listen(3000, function()
 {
@@ -14,21 +16,26 @@ const server_websocket = new WebSocket.server(
 
 server_websocket.on("request", function(request)
 {
-	const connection = request.accept(null, request.origin);
-	console.log("Connection request accepted");
+	let connection;
+	
+	if (player1 === undefined)
+	{
+		connection = player1 = request.accept(null, request.origin);
+		player1.id_player = 0;
+		console.log("Player 1 connected");
+	}
+	else if (player2 === undefined)
+	{
+		connection = player2 = request.accept(null, request.origin);
+		player2.id_player = 1;
+		console.log("Player 2 connected");
+	}
+	else
+		request.reject();
 	
 	connection.on("message", function(message)
 	{
-		if (message.type === "utf8")
-		{
-			console.log("Received Message: " + message.utf8Data);
-			connection.sendUTF(message.utf8Data);
-		}
-		else if (message.type === "binary")
-		{
-			console.log("Received Binary Message of " + message.binaryData.length + " bytes");
-			connection.sendBytes(message.binaryData);
-		}
+		console.log(message.utf8Data);
 	});
 	
 	connection.on("close", function(reason, description)
