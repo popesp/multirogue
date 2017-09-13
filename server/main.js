@@ -11,8 +11,8 @@ const server = net.createServer(function(socket)
 		console.log(chunk);
 	});
 });
-game.server.on("error", function(error)
+server.on("error", function(error)
 {
 	throw error;
 });
-game.server.listen(port);
+server.listen(port);

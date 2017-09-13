@@ -1,0 +1,21 @@
+
+/*
+h1{
+	text-align: center;
+}*/
+
+#gameCanvas{
+	border:10px solid #000000;
+}
+
+#gameContainer{
+	text-align: center;
+}
+
+.blue {
+	background: #5A01FF;
+}
+
+.red {
+	background: #C40C0C;
+}
