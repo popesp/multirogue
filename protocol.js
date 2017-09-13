@@ -1,7 +1,12 @@
-module.exports = function()
-{
-	this.Protocol =
-	{
-		CONNECT: 0x42
-	};
-};
+// client -> server
+"place 6"
+"chat <string>"
+
+
+// server -> client
+"state 001020201"
+"invalid"
+"valid"
+"ready"
+"win"
+"lose"
