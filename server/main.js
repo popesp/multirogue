@@ -1,18 +1,14 @@
 const WebSocket = require("websocket");
 const http = require("http");
 
-let players = [];
+const players = [];
+const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 let state = "waiting";
-let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 const server_http = http.createServer();
-server_http.listen(3000, function()
-{
-	console.log("Server is listening on port 3000");
-});
+server_http.listen(3000);
 
-const server_websocket = new WebSocket.server(
-{
+const server_websocket = new WebSocket.server({
 	httpServer: server_http
 });
 
@@ -26,7 +22,6 @@ server_websocket.on("request", function(request)
 		connection.id_player = 0;
 		
 		connection.send("connected 0");
-		console.log("Player 1 connected");
 	}
 	else if (players[1] === undefined)
 	{
@@ -34,7 +29,6 @@ server_websocket.on("request", function(request)
 		connection.id_player = 1;
 		
 		connection.send("connected 1");
-		console.log("Player 2 connected");
 		
 		state = "game";
 		
@@ -66,12 +60,10 @@ server_websocket.on("request", function(request)
 			}
 		});
 		
-		connection.on("close", function(reason, description)
+		connection.on("close", function()
 		{
 			players[connection.id_player] = undefined;
 			state = "waiting";
-			
-			console.log("Player " + (connection.id_player + 1) + " disconnected");
 		});
 	}
 });
