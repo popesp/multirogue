@@ -1,23 +1,27 @@
 //Game logic here
+const EMPTY = 0;
+const X = 1;
+const O = 2;
 
 //Define global variables
 var cells = [];
 var radius;
+
 
 document.addEventListener("DOMContentLoaded", function(event){ //Waits for the HTML content to be loaded
 	var gameCanvas = document.getElementById("gameCanvas");
 	//Initialize global variables
 	radius = gameCanvas.width/8; 
 	cells = [
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/6},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/6},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/6},
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/2},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/2},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/2},
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 5/6},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 5/6},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6} ]
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/6, state: EMPTY},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/6, state: EMPTY},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/6, state: EMPTY},
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/2, state: EMPTY},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/2, state: EMPTY},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/2, state: EMPTY},
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 5/6, state: EMPTY},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 5/6, state: EMPTY},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6, state: EMPTY} ]
 
 	//Set up grid
 	var ctx = gameCanvas.getContext("2d");
@@ -52,11 +56,14 @@ for(var i=0; i<9; i++){
 	document.getElementById("gameInfo").innerHTML = "gameInfo HTML text"; 
 
 
-	//Make background blue
+	//Make background blue and state mouse position
 	gameCanvas.onclick=function(event){
-		console.log("Does this work?");
+		console.log(getMousePos(gameCanvas, event));
 		gameCanvas.classList=["blue"]
 	};
+
+	
+
 });
 
 var connection = new WebSocket('ws://localhost:3000');
@@ -65,11 +72,8 @@ connection.onopen = function(){
 }
 
 
-
-
-
-//Draws a circle at coordinates with a radius
-//(2d context, x coord, y coord, radius)
+//Draws a circle in cell
+//(2d context, cell array)
 function drawO(ctx,cell){
 	ctx.beginPath();
 	//Define the circle
@@ -78,6 +82,8 @@ function drawO(ctx,cell){
 	ctx.stroke();
 }
 
+//Draw an X in cell
+//(2d context, cell array)
 function drawX(ctx, cell){
 	//left top to bottom right
 	ctx.moveTo(cells[cell].x - radius, cells[cell].y - radius);
@@ -87,4 +93,13 @@ function drawX(ctx, cell){
 	ctx.lineTo(cells[cell].x - radius, cells[cell].y + radius);
 	//Draw the X
 	ctx.stroke();
+}
+
+
+function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+	  x: evt.clientX - rect.left,
+	  y: evt.clientY - rect.top
+	};
 }
