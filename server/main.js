@@ -46,25 +46,32 @@ server_websocket.on("request", function(request)
 	else
 		request.reject();
 	
-	connection.on("message", function(message)
+	if (connection !== undefined)
 	{
-		const args = message.utf8Data.split(" ");
-		
-		if (args[0] === "chat")
+		connection.on("message", function(message)
 		{
-			const message = "chat " + connection.id_player + " " + args.slice(1).join(" ");
-			if (players[0] !== undefined)
-				players[0].send(message);
-			if (players[1] !== undefined)
-				players[1].send(message);
-		}
-	});
-	
-	connection.on("close", function(reason, description)
-	{
-		players[connection.id_player] = undefined;
-		state = "waiting";
+			const args = message.utf8Data.split(" ");
+			
+			if (args[0] === "chat")
+			{
+				const message = "chat " + connection.id_player + " " + args.slice(1).join(" ");
+				if (players[0] !== undefined)
+					players[0].send(message);
+				if (players[1] !== undefined)
+					players[1].send(message);
+			}
+			else if (args[0] === "place")
+			{
+				// process board state
+			}
+		});
 		
-		console.log("Player " + (connection.id_player + 1) + " disconnected");
-	});
+		connection.on("close", function(reason, description)
+		{
+			players[connection.id_player] = undefined;
+			state = "waiting";
+			
+			console.log("Player " + (connection.id_player + 1) + " disconnected");
+		});
+	}
 });
