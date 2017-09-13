@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 		console.log("Does this work?");
 		gameCanvas.classList=["blue"]
 	};
-
-
 });
+
+var connection = new WebSocket('ws://localhost:3000');
+connection.onopen = function(){
+	connection.send('Ping'); //Send the message to 'Ping' to the server
+}
