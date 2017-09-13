@@ -59,11 +59,9 @@ for(var i=0; i<9; i++){
 	//Make background blue and state mouse position
 	gameCanvas.onclick=function(event){
 		console.log(getMousePos(gameCanvas, event));
-		gameCanvas.classList=["blue"]
+		var cellIndex = getClickedCell(gameCanvas, getMousePos(gameCanvas, event));
+		//gameCanvas.classList=["blue"]
 	};
-
-	
-
 });
 
 var connection = new WebSocket('ws://localhost:3000');
@@ -103,3 +101,10 @@ function getMousePos(canvas, evt) {
 	  y: evt.clientY - rect.top
 	};
 }
+
+function getClickedCell(canvas, coords){
+	var rect = canvas.getBoundingClientRect();
+	var clickedCell = Math.floor(3 * coords.x / rect.width) + Math.floor(3 * coords.y / rect.height)*3;
+	console.log(clickedCell);
+}
+
