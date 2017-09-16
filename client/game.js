@@ -69,11 +69,6 @@ gameCanvas.onclick=function(getMousePos){
 	};
 });
 
-var connection = new WebSocket('ws://localhost:3000');
-connection.onopen = function(){
-	connection.send('Ping'); //Send the message to 'Ping' to the server
-}
-
 
 //Draws a circle in cell
 //(2d context, cell array)

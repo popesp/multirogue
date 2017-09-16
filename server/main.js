@@ -1,16 +1,14 @@
 const WebSocket = require("websocket");
 const http = require("http");
 
-let player1, player2;
+const players = [];
+const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+let state = "waiting";
 
 const server_http = http.createServer();
-server_http.listen(3000, function()
-{
-	console.log((new Date()) + " Server is listening on port 3000");
-});
+server_http.listen(3000);
 
-const server_websocket = new WebSocket.server(
-{
+const server_websocket = new WebSocket.server({
 	httpServer: server_http
 });
 
@@ -18,28 +16,54 @@ server_websocket.on("request", function(request)
 {
 	let connection;
 	
-	if (player1 === undefined)
+	if (players[0] === undefined)
 	{
-		connection = player1 = request.accept(null, request.origin);
-		player1.id_player = 0;
-		console.log("Player 1 connected");
+		connection = players[0] = request.accept(null, request.origin);
+		connection.id_player = 0;
+		
+		connection.send("connected 0");
 	}
-	else if (player2 === undefined)
+	else if (players[1] === undefined)
 	{
-		connection = player2 = request.accept(null, request.origin);
-		player2.id_player = 1;
-		console.log("Player 2 connected");
+		connection = players[1] = request.accept(null, request.origin);
+		connection.id_player = 1;
+		
+		connection.send("connected 1");
+		
+		state = "game";
+		
+		players[0].send("ready");
+		players[1].send("ready");
+		
+		players[0].send("state " + board.join(""));
 	}
 	else
 		request.reject();
 	
-	connection.on("message", function(message)
+	if (connection !== undefined)
 	{
-		console.log(message.utf8Data);
-	});
-	
-	connection.on("close", function(reason, description)
-	{
-		console.log(connection.remoteAddress + " disconnected");
-	});
+		connection.on("message", function(message)
+		{
+			const args = message.utf8Data.split(" ");
+			
+			if (args[0] === "chat")
+			{
+				const message = "chat " + connection.id_player + " " + args.slice(1).join(" ");
+				if (players[0] !== undefined)
+					players[0].send(message);
+				if (players[1] !== undefined)
+					players[1].send(message);
+			}
+			else if (args[0] === "place")
+			{
+				// process board state
+			}
+		});
+		
+		connection.on("close", function()
+		{
+			players[connection.id_player] = undefined;
+			state = "waiting";
+		});
+	}
 });
