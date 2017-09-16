@@ -9,25 +9,19 @@ let id_playerturn = 0;
 
 const server_http = http.createServer(function(request, response)
 {
-	console.log(request.url);
-	
 	if (request.url === "/")
 		request.url = "/index.html";
 	
 	fs.readFile("files" + request.url, function(error, content)
 	{
-		if (error)
+		if (!error)
 		{
-			console.log(error);
-		}
-		else
-		{
-			response.writeHead(200, { "Content-Type": "text/html"});
+			response.writeHead(200, {"Content-Type": "text/html"});
 			response.end(content, "utf-8");
 		}
 	});
 });
-server_http.listen(3000);
+server_http.listen(80);
 
 const server_websocket = new WebSocket.server({
 	httpServer: server_http
@@ -95,14 +89,11 @@ server_websocket.on("request", function(request)
 							break;
 						}
 					
-					console.log(board);
 					connection.send("valid " + board.join(""));
 					if (gameover)
 					{
 						for (const i in board)
 							board[i] = 0;
-						
-						console.log("Game is over");
 						
 						id_playerturn = 0;
 						players[0].send("state " + board.join(""));

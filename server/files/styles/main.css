@@ -1,44 +1,47 @@
-body {
+body
+{
 	margin: 0;
 }
-/*
-h1{
-	text-align: center;
-}*/
 
-#gameCanvas{
+#gameCanvas
+{
 	border:10px solid #000000;
-
 }
 
-#gameContainer{
+#gameContainer
+{
 	text-align: center;
 	width: 75%;
 	overflow: hidden;
 	float: left;
 }
 
-#chat {
+#chat
+{
 	width: 25%;
 	float: right;
-	
 }
-#chatHistory{
+#chatHistory
+{
 	height: 820px;
 	border:1px solid #000000;
 	overflow-y: scroll;
 	overflow-wrap: break-word;
 }
-#chat input{
+
+#chat input
+{
 	width: 100%
 }
 
-#gameInfo {
+#gameInfo
+{
 	font-size: 40;
 	text-align: center;
 }
 
-.playerName {
+.playerName
+{
 	font-weight: bold;
 	margin-right: 8px;
 }

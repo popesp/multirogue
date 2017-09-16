@@ -1,22 +1,30 @@
-//Game logic here
-const EMPTY = 0;
+/* eslint-env browser */
+
+// game constants
 const X = 1;
 const O = 2;
 
-//Define global variables
-//socket = new WebSocket("ws://localhost:3000");
-socket = new WebSocket("ws://192.168.0.30:3000");
-var cells = [];
-var radius;
-var playerID; //0 == X, 1 == O
-var ctx;
+// global variables
+let ctx;
+let radius;
+let cells;
+let id_player;
+let state = "disconnected";
 
+// socket connection
+const socket = new WebSocket("ws://" + window.location.hostname);
 
-document.addEventListener("DOMContentLoaded", function(event){ //Waits for the HTML content to be loaded
-	var gameCanvas = document.getElementById("gameCanvas");
-	//Initialize global variables
-	radius = gameCanvas.width/8; 
-	cells = [
+// do things after the DOM is loaded
+document.addEventListener("DOMContentLoaded", function()
+{
+	const gameCanvas = document.getElementById("gameCanvas");
+	ctx = gameCanvas.getContext("2d");
+	ctx.lineWidth = 5;
+	
+	// initialize global variables
+	radius = gameCanvas.width/8;
+	cells =
+	[
 		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/6},
 		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/6},
 		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/6},
@@ -25,135 +33,126 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/2},
 		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 5/6},
 		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 5/6},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6} ]
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6}
+	];
 
-	//Set up grid
+	// reset game grid
 	resetCanvas(gameCanvas);
-
-
-
-
-	gameCanvas.onclick=function(getMousePos){
-		getClickedCell(gameCanvas, getMousePos);
-	}
 	
-	//Listens for chat input and sends to server, then clears text input box
-	document.getElementById("chatSubmit").onsubmit = function submitCallback(event){
+	// handle mouse clicks
+	gameCanvas.onclick = function(event)
+	{
+		socket.send("place " + getClickedCell(gameCanvas, event));
+	};
+	
+	// handle chat inputs
+	document.getElementById("chatSubmit").onsubmit = function submitCallback(event)
+	{
 		event.preventDefault();
-		var textBox = document.getElementById("chatInput");
+		
+		const textBox = document.getElementById("chatInput");
 		socket.send("chat " + textBox.value);
 		textBox.value = "";
-	 }
-
-
-	//Send click info to server
-	gameCanvas.onclick=function(event){
-		console.log(getMousePos(gameCanvas, event));
-		var cellIndex = getClickedCell(gameCanvas, getMousePos(gameCanvas, event));
-		socket.send("place " + cellIndex);
 	};
 });
 
-
-//Draws a circle in cell
-//(2d context, cell array)
-function drawO(ctx,cell){
-	console.log("Cell passed: " + cell);
+// draw an O in a cell
+function drawO(cell)
+{
 	ctx.beginPath();
-	//Define the circle
-	ctx.arc(cells[cell].x,cells[cell].y,radius,0,Math.PI*2);
-	//Draw the circle
+	ctx.arc(cells[cell].x, cells[cell].y, radius, 0, Math.PI*2);
 	ctx.stroke();
 }
 
-//Draw an X in cell
-//(2d context, cell array)
-function drawX(ctx, cell){
-	//left top to bottom right
+// draw an X in cell
+function drawX(cell)
+{
+	// left top to bottom right
 	ctx.moveTo(cells[cell].x - radius, cells[cell].y - radius);
 	ctx.lineTo(cells[cell].x + radius, cells[cell].y + radius);
-	//right top to bottom left
+	
+	// right top to bottom left
 	ctx.moveTo(cells[cell].x + radius, cells[cell].y - radius);
 	ctx.lineTo(cells[cell].x - radius, cells[cell].y + radius);
-	//Draw the X
+	
 	ctx.stroke();
 }
 
-
-function getMousePos(canvas, evt) {
-	var rect = canvas.getBoundingClientRect();
-	return {
-	  x: evt.clientX - rect.left,
-	  y: evt.clientY - rect.top
-	};
-}
-
-function getClickedCell(canvas, coords){
-	var rect = canvas.getBoundingClientRect();
-	var clickedCell = Math.floor(3 * coords.x / rect.width) + Math.floor(3 * coords.y / rect.height)*3;
-	console.log(clickedCell);
-	return clickedCell;
-}
-
-//Update gameInfo text
-function updateGameInfoText(text){
-	document.getElementById("gameInfo").innerHTML = text;
-}
-
-
-//Region: From Server
-
-//Update and draw board from state received from server
-function updateBoard(ctx, board){
-	resetCanvas(document.getElementById("gameCanvas"));
-	parsedBoard = board.split("").map(function(cell)
-	{
-		return parseInt(cell);
-	});
-	for(var i in parsedBoard){
-		if(parsedBoard[i] == X){
-			drawX(ctx, i);
-		}
-		else if(parsedBoard[i] == O){
-			drawO(ctx, i);
-		}
-	}
-}
-
-function resetCanvas(gameCanvas){
-	//Set up grid
-	ctx = gameCanvas.getContext("2d");
-	ctx.clearRect(0,0, gameCanvas.width, gameCanvas.height);
+function resetCanvas(gameCanvas)
+{
+	// clear canvas
+	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 	ctx.beginPath();
-	//Left Vertical
+	
+	// Left Vertical
 	ctx.moveTo(gameCanvas.width/3, 0);
 	ctx.lineTo(gameCanvas.width/3, gameCanvas.clientHeight);
 
-	//Right Vertical
+	// Right Vertical
 	ctx.moveTo(gameCanvas.width/3 * 2, 0);
 	ctx.lineTo(gameCanvas.width/3 * 2, gameCanvas.height);
 
-	//Top Horizontal
+	// Top Horizontal
 	ctx.moveTo(0, gameCanvas.height/3);
 	ctx.lineTo(gameCanvas.width, gameCanvas.height/3);
 
-	//Bottom Horizontal
+	// Bottom Horizontal
 	ctx.moveTo(0, gameCanvas.height/3 *2);
 	ctx.lineTo(gameCanvas.width, gameCanvas.height/3 *2);
-	//Draw grid lines
-	ctx.lineWidth = 5;
+	
 	ctx.stroke();
 }
 
+// redraw board state
+function updateBoard(board)
+{
+	resetCanvas(document.getElementById("gameCanvas"));
+	
+	const boardstate = board.split("").map(function(cell)
+	{
+		return parseInt(cell);
+	});
+	
+	for(const i in boardstate)
+		if(boardstate[i] == X)
+			drawX(i);
+		else if(boardstate[i] == O)
+			drawO(i);
+}
 
+function getClickedCell(canvas, event)
+{
+	const rect = canvas.getBoundingClientRect();
+	const x = event.clientX - rect.left;
+	const y = event.clientY - rect.top;
+	
+	return Math.floor(x*3/rect.width) + Math.floor(y*3/rect.height)*3;
+}
 
-//net stuff
+//Update gameInfo text
+function updateGameInfoText(text)
+{
+	document.getElementById("gameInfo").innerHTML = text;
+}
 
+// add a chat line
+function appendChat(name, text)
+{
+	const chatLine = document.createElement("div");
+	chatLine.className = "chatLine";
+	
+	const playerName = document.createElement("span");
+	playerName.className = "playerName";
+	playerName.innerHTML = name + ":";
+	
+	chatLine.appendChild(playerName);
+	chatLine.innerHTML += text;
+	
+	document.getElementById("chatLines").appendChild(chatLine);
+	document.getElementById("chatHistory").scrollTop = document.getElementById("chatHistory").scrollHeight;
+}
 
-let state = "disconnected";
-let id_player;
-let board;
-
+// network/state message handler
 const processes =
 {
 	disconnected:
@@ -161,9 +160,9 @@ const processes =
 		connected: function(args)
 		{
 			id_player = parseInt(args[0]);
-			updateBoard(ctx, args[1]); //args[0] will be the board
 			updateGameInfoText("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
-			console.log("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
+			updateBoard(args[1]);
+			
 			state = "waiting";
 		}
 	},
@@ -172,16 +171,14 @@ const processes =
 		ready: function()
 		{
 			updateGameInfoText("Another player has joined, starting game...");
-			console.log("Another player has joined, starting game...");
-			if(id_player == 1){
+			if(id_player === 1) // TODO: jank
 				updateGameInfoText("Waiting for opponent's move...");
-			}
+			
 			state = "idle";
 		},
 		chat: function(args)
 		{
 			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
-			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	idle:
@@ -189,40 +186,35 @@ const processes =
 		state: function(args)
 		{
 			updateGameInfoText("It is your turn");
-			console.log("It is your turn");
+			updateBoard(args[0]);
 			
-			
-			updateBoard(ctx, args[0]); //args[0] will be the board
 			state = "turn";
 		},
-		ended: function(args)
+		ended: function()
 		{
-			const id_winningplayer = parseInt(args[0]);
+			// TODO
 		},
 		chat: function(args)
 		{
 			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
-			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	turn:
 	{
 		invalid: function()
 		{
-			console.log("Invalid move; try again");
 			updateGameInfoText("Invalid move; try again");
 		},
 		valid: function(args)
 		{
 			updateGameInfoText("Waiting for opponent's move...");
-			console.log("Waiting for opponent's move...");
-			updateBoard(ctx, args[0]); //args[0] will be the board
+			updateBoard(args[0]);
+			
 			state = "idle";
 		},
 		chat: function(args)
 		{
 			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
-			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	ended:
@@ -231,6 +223,7 @@ const processes =
 	}
 };
 
+// socket message handler
 socket.onmessage = function(event)
 {
 	const args = event.data.split(" ");
@@ -239,27 +232,3 @@ socket.onmessage = function(event)
 	if (process !== undefined)
 		process(args.slice(1));
 };
-
-
-function appendChat(name, text){
-	var iDiv = document.createElement("div");
-	iDiv.className = "chatLine";
-	var span = document.createElement("span");
-	span.className = "playerName";
-	span.innerHTML = name + ":";
-	iDiv.appendChild(span);
-	iDiv.innerHTML += text;
-	document.getElementById("chatLines").appendChild(iDiv);
-	document.getElementById("chatHistory").scrollTop = document.getElementById("chatHistory").scrollHeight;
-}
-
-
-
-
-
-
-
-
-
-
-

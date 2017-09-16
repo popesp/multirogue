@@ -29,5 +29,9 @@
 		"comma-spacing": ["error", {"before": false, "after": true}],
 		"brace-style": ["error", "allman"],
 		"no-var": "error"
+	},
+	"globals":
+	{
+		"WebSocket": false
 	}
 }
