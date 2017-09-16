@@ -44,10 +44,15 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 	ctx.lineWidth = 5;
 	ctx.stroke();
 
-	
+
+//Draw X and O in every cell to test
 for(var i=0; i<9; i++){
 	drawX(ctx,i);
 	drawO(ctx,i);
+}
+
+gameCanvas.onclick=function(getMousePos){
+	getClickedCell(gameCanvas, getMousePos);
 }
 	
 
@@ -60,7 +65,7 @@ for(var i=0; i<9; i++){
 	gameCanvas.onclick=function(event){
 		console.log(getMousePos(gameCanvas, event));
 		var cellIndex = getClickedCell(gameCanvas, getMousePos(gameCanvas, event));
-		//gameCanvas.classList=["blue"]
+		drawO(ctx, cellIndex);
 	};
 });
 
@@ -68,6 +73,7 @@ for(var i=0; i<9; i++){
 //Draws a circle in cell
 //(2d context, cell array)
 function drawO(ctx,cell){
+	console.log("Cell passed: " + cell);
 	ctx.beginPath();
 	//Define the circle
 	ctx.arc(cells[cell].x,cells[cell].y,radius,0,Math.PI*2);
@@ -101,5 +107,6 @@ function getClickedCell(canvas, coords){
 	var rect = canvas.getBoundingClientRect();
 	var clickedCell = Math.floor(3 * coords.x / rect.width) + Math.floor(3 * coords.y / rect.height)*3;
 	console.log(clickedCell);
+	return clickedCell;
 }
 
