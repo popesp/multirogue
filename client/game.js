@@ -16,36 +16,18 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 	//Initialize global variables
 	radius = gameCanvas.width/8; 
 	cells = [
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/6, state: EMPTY},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/6, state: EMPTY},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/6, state: EMPTY},
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/2, state: EMPTY},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/2, state: EMPTY},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/2, state: EMPTY},
-		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 5/6, state: EMPTY},
-		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 5/6, state: EMPTY},
-		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6, state: EMPTY} ]
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/6},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/6},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/6},
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 1/2},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 1/2},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 1/2},
+		{x: gameCanvas.width * 1/6, y: gameCanvas.height * 5/6},
+		{x: gameCanvas.width * 1/2, y: gameCanvas.height * 5/6},
+		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6} ]
 
 	//Set up grid
-	ctx = gameCanvas.getContext("2d");
-	//Left Vertical
-	ctx.moveTo(gameCanvas.width/3, 0);
-	ctx.lineTo(gameCanvas.width/3, gameCanvas.clientHeight);
-
-	//Right Vertical
-	ctx.moveTo(gameCanvas.width/3 * 2, 0);
-	ctx.lineTo(gameCanvas.width/3 * 2, gameCanvas.height);
-
-	//Top Horizontal
-	ctx.moveTo(0, gameCanvas.height/3);
-	ctx.lineTo(gameCanvas.width, gameCanvas.height/3);
-
-	//Bottom Horizontal
-	ctx.moveTo(0, gameCanvas.height/3 *2);
-	ctx.lineTo(gameCanvas.width, gameCanvas.height/3 *2);
-	//Draw grid lines
-	ctx.lineWidth = 5;
-	ctx.stroke();
+	resetCanvas(gameCanvas);
 
 
 
@@ -122,6 +104,7 @@ function updateGameInfoText(text){
 
 //Update and draw board from state received from server
 function updateBoard(ctx, board){
+	resetCanvas(document.getElementById("gameCanvas"));
 	parsedBoard = board.split("").map(function(cell)
 	{
 		return parseInt(cell);
@@ -136,6 +119,30 @@ function updateBoard(ctx, board){
 	}
 }
 
+function resetCanvas(gameCanvas){
+	//Set up grid
+	ctx = gameCanvas.getContext("2d");
+	ctx.clearRect(0,0, gameCanvas.width, gameCanvas.height);
+	ctx.beginPath();
+	//Left Vertical
+	ctx.moveTo(gameCanvas.width/3, 0);
+	ctx.lineTo(gameCanvas.width/3, gameCanvas.clientHeight);
+
+	//Right Vertical
+	ctx.moveTo(gameCanvas.width/3 * 2, 0);
+	ctx.lineTo(gameCanvas.width/3 * 2, gameCanvas.height);
+
+	//Top Horizontal
+	ctx.moveTo(0, gameCanvas.height/3);
+	ctx.lineTo(gameCanvas.width, gameCanvas.height/3);
+
+	//Bottom Horizontal
+	ctx.moveTo(0, gameCanvas.height/3 *2);
+	ctx.lineTo(gameCanvas.width, gameCanvas.height/3 *2);
+	//Draw grid lines
+	ctx.lineWidth = 5;
+	ctx.stroke();
+}
 
 
 
