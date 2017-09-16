@@ -187,6 +187,10 @@ const processes =
 			updateBoard(ctx, args[0]); //args[0] will be the board
 			state = "turn";
 		},
+		ended: function(args)
+		{
+			const id_winningplayer = parseInt(args[0]);
+		},
 		chat: function(args)
 		{
 			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
@@ -212,6 +216,10 @@ const processes =
 			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
 			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
+	},
+	ended:
+	{
+		
 	}
 };
 
