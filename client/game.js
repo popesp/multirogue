@@ -4,7 +4,8 @@ const X = 1;
 const O = 2;
 
 //Define global variables
-socket = new WebSocket("ws://localhost:3000");
+//socket = new WebSocket("ws://localhost:3000");
+socket = new WebSocket("ws://192.168.0.30:3000");
 var cells = [];
 var radius;
 var playerID; //0 == X, 1 == O
