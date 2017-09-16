@@ -4,7 +4,7 @@
 
 // server -> client
 "chat <id_player> <string>"
-"connected <id_player>"
+"connected <id_player>" //0 == X, 1 == O
 "disconnected"
 "ready"
 "state 001020201"

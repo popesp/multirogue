@@ -4,8 +4,11 @@ const X = 1;
 const O = 2;
 
 //Define global variables
+socket = new WebSocket("ws://localhost:3000");
 var cells = [];
 var radius;
+var playerID; //0 == X, 1 == O
+var ctx;
 
 
 document.addEventListener("DOMContentLoaded", function(event){ //Waits for the HTML content to be loaded
@@ -24,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 		{x: gameCanvas.width * 5/6, y: gameCanvas.height * 5/6, state: EMPTY} ]
 
 	//Set up grid
-	var ctx = gameCanvas.getContext("2d");
+	ctx = gameCanvas.getContext("2d");
 	//Left Vertical
 	ctx.moveTo(gameCanvas.width/3, 0);
 	ctx.lineTo(gameCanvas.width/3, gameCanvas.clientHeight);
@@ -45,27 +48,20 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 	ctx.stroke();
 
 
-//Draw X and O in every cell to test
-for(var i=0; i<9; i++){
-	drawX(ctx,i);
-	drawO(ctx,i);
-}
 
-gameCanvas.onclick=function(getMousePos){
-	getClickedCell(gameCanvas, getMousePos);
-}
+
+	gameCanvas.onclick=function(getMousePos){
+		getClickedCell(gameCanvas, getMousePos);
+	}
 	
+	 
 
 
-	//Update gameInfo text
-	document.getElementById("gameInfo").innerHTML = "gameInfo HTML text"; 
-
-
-	//Make background blue and state mouse position
+	//Send click info to server
 	gameCanvas.onclick=function(event){
 		console.log(getMousePos(gameCanvas, event));
 		var cellIndex = getClickedCell(gameCanvas, getMousePos(gameCanvas, event));
-		drawO(ctx, cellIndex);
+		socket.send("place " + cellIndex);
 	};
 });
 
@@ -110,3 +106,110 @@ function getClickedCell(canvas, coords){
 	return clickedCell;
 }
 
+//Update gameInfo text
+function updateGameInfoText(text){
+	document.getElementById("gameInfo").innerHTML = text;
+}
+
+
+//Region: From Server
+
+//Update and draw board from state received from server
+function updateBoard(ctx, board){
+	for(var i in board){
+		if(board[i] == X){
+			drawX(ctx, i);
+		}
+		else if(board[i] == O){
+			drawO(ctx, i);
+		}
+	}
+}
+
+//net stuff
+
+
+let state = "disconnected";
+let id_player;
+let board;
+
+const processes =
+{
+	disconnected:
+	{
+		connected: function(args)
+		{
+			id_player = parseInt(args[0]);
+			updateGameInfoText("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
+			console.log("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
+			state = "waiting";
+		}
+	},
+	waiting:
+	{
+		ready: function()
+		{
+			updateGameInfoText("Another player has joined, starting game...");
+			console.log("Another player has joined, starting game...");
+			if(id_player == 1){
+				updateGameInfoText("Waiting for opponent's move...");
+			}
+			state = "idle";
+		},
+		chat: function(args)
+		{
+			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+		}
+	},
+	idle:
+	{
+		state: function(args)
+		{
+			updateGameInfoText("It is your turn");
+			console.log("It is your turn");
+			
+			board = args[0].split("").map(function(cell)
+			{
+				return parseInt(cell);
+			});
+			updateBoard(ctx, board);
+			state = "turn";
+		},
+		chat: function(args)
+		{
+			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+		}
+	},
+	turn:
+	{
+		invalid: function()
+		{
+			console.log("Invalid move; try again");
+			updateGameInfoText("Invalid move; try again");
+		},
+		valid: function(args)
+		{
+			updateGameInfoText("Waiting for opponent's move...");
+			console.log("Waiting for opponent's move...");
+			board = args[0].split("").map(function(cell)
+			{
+				return parseInt(cell);
+			});
+			updateBoard(ctx, board);
+			state = "idle";
+		},
+		chat: function(args)
+		{
+			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+		}
+	}
+};
+
+socket.onmessage = function(event)
+{
+	const args = event.data.split(" ");
+	const process = processes[state][args[0]];
+	
+	if (process !== undefined)
+		process(args.slice(1));
+};

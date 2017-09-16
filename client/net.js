@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:3000");
+
 
 let state = "disconnected";
 let id_player;
@@ -37,7 +37,7 @@ const processes =
 			{
 				return parseInt(cell);
 			});
-			
+			updateBoard(ctx, board);
 			state = "turn";
 		},
 		chat: function(args)
@@ -51,9 +51,14 @@ const processes =
 		{
 			console.log("Invalid move; try again");
 		},
-		valid: function()
+		valid: function(args)
 		{
 			console.log("Waiting for opponent's move...");
+			board = args[0].split("").map(function(cell)
+			{
+				return parseInt(cell);
+			});
+			updateBoard(ctx, board);
 			state = "idle";
 		},
 		chat: function(args)
