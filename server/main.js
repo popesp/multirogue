@@ -67,14 +67,29 @@ server_websocket.on("request", function(request)
 				{
 					board[index_cell] = connection.id_player + 1;
 					
-					const state = board.join("");
+					let gameover = true;
+					for (const i in board)
+						if (board[i] === 0)
+						{
+							gameover = false;
+							break;
+						}
 					
 					connection.send("valid " + state);
-					id_playerturn = +!id_playerturn;
-					players[id_playerturn].send("state " + state);
+					if (gameover)
+					{
+						for (const i in board)
+							board[i] = 0;
+						
+						id_playerturn = 0;
+						players[0].send("state " + board.join(""));
+					}
+					else
+					{
+						id_playerturn = +!id_playerturn;
+						players[id_playerturn].send("state " + board.join(""));
+					}
 				}
-				
-				console.log(board);
 			}
 		});
 		
