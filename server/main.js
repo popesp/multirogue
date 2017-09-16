@@ -1,12 +1,32 @@
 const WebSocket = require("websocket");
 const http = require("http");
+const fs = require("fs");
 
 const players = [];
 const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 let state = "waiting";
 let id_playerturn = 0;
 
-const server_http = http.createServer();
+const server_http = http.createServer(function(request, response)
+{
+	console.log(request.url);
+	
+	if (request.url === "/")
+		request.url = "/index.html";
+	
+	fs.readFile("files" + request.url, function(error, content)
+	{
+		if (error)
+		{
+			console.log(error);
+		}
+		else
+		{
+			response.writeHead(200, { "Content-Type": "text/html"});
+			response.end(content, "utf-8");
+		}
+	});
+});
 server_http.listen(3000);
 
 const server_websocket = new WebSocket.server({
