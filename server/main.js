@@ -4,6 +4,7 @@ const http = require("http");
 const players = [];
 const board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 let state = "waiting";
+let id_playerturn = 0;
 
 const server_http = http.createServer();
 server_http.listen(3000);
@@ -54,7 +55,7 @@ server_websocket.on("request", function(request)
 				if (players[1] !== undefined)
 					players[1].send(message);
 			}
-			else if (args[0] === "place" && state === "game")
+			else if (args[0] === "place" && state === "game" && id_playerturn === connection.id_player)
 			{
 				const index_cell = parseInt(args[1]);
 				
@@ -69,7 +70,8 @@ server_websocket.on("request", function(request)
 					const state = board.join("");
 					
 					connection.send("valid " + state);
-					players[+!connection.id_player].send("state " + state);
+					id_playerturn = +!id_playerturn;
+					players[id_playerturn].send("state " + state);
 				}
 				
 				console.log(board);
