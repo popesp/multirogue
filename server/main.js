@@ -75,11 +75,14 @@ server_websocket.on("request", function(request)
 							break;
 						}
 					
+					console.log(board);
 					connection.send("valid " + board.join(""));
 					if (gameover)
 					{
 						for (const i in board)
 							board[i] = 0;
+						
+						console.log("Game is over");
 						
 						id_playerturn = 0;
 						players[0].send("state " + board.join(""));
