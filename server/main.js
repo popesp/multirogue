@@ -71,6 +71,8 @@ server_websocket.on("request", function(request)
 					connection.send("valid " + state);
 					players[+!connection.id_player].send("state " + state);
 				}
+				
+				console.log(board);
 			}
 		});
 		
