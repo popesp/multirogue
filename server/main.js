@@ -75,7 +75,7 @@ server_websocket.on("request", function(request)
 							break;
 						}
 					
-					connection.send("valid " + state);
+					connection.send("valid " + board.join(""));
 					if (gameover)
 					{
 						for (const i in board)
