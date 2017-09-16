@@ -23,3 +23,8 @@ h1{
 .white{
 	background: #FFFFFF;
 }
+
+#gameInfo {
+	font-size: 40;
+	text-align: center;
+}
