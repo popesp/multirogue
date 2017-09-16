@@ -54,7 +54,13 @@ document.addEventListener("DOMContentLoaded", function(event){ //Waits for the H
 		getClickedCell(gameCanvas, getMousePos);
 	}
 	
-	 
+	//Listens for chat input and sends to server, then clears text input box
+	document.getElementById("chatSubmit").onsubmit = function submitCallback(event){
+		event.preventDefault();
+		var textBox = document.getElementById("chatInput");
+		socket.send("chat " + textBox.value);
+		textBox.value = "";
+	 }
 
 
 	//Send click info to server
@@ -116,15 +122,22 @@ function updateGameInfoText(text){
 
 //Update and draw board from state received from server
 function updateBoard(ctx, board){
-	for(var i in board){
-		if(board[i] == X){
+	parsedBoard = board.split("").map(function(cell)
+	{
+		return parseInt(cell);
+	});
+	for(var i in parsedBoard){
+		if(parsedBoard[i] == X){
 			drawX(ctx, i);
 		}
-		else if(board[i] == O){
+		else if(parsedBoard[i] == O){
 			drawO(ctx, i);
 		}
 	}
 }
+
+
+
 
 //net stuff
 
@@ -140,6 +153,7 @@ const processes =
 		connected: function(args)
 		{
 			id_player = parseInt(args[0]);
+			updateBoard(ctx, args[0]); //args[0] will be the board
 			updateGameInfoText("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
 			console.log("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
 			state = "waiting";
@@ -158,7 +172,8 @@ const processes =
 		},
 		chat: function(args)
 		{
-			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
+			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	idle:
@@ -168,11 +183,8 @@ const processes =
 			updateGameInfoText("It is your turn");
 			console.log("It is your turn");
 			
-			board = args[0].split("").map(function(cell)
-			{
-				return parseInt(cell);
-			});
-			updateBoard(ctx, board);
+			
+			updateBoard(ctx, args[0]); //args[0] will be the board
 			state = "turn";
 		},
 		ended: function(args)
@@ -181,7 +193,8 @@ const processes =
 		},
 		chat: function(args)
 		{
-			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
+			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	turn:
@@ -195,16 +208,13 @@ const processes =
 		{
 			updateGameInfoText("Waiting for opponent's move...");
 			console.log("Waiting for opponent's move...");
-			board = args[0].split("").map(function(cell)
-			{
-				return parseInt(cell);
-			});
-			updateBoard(ctx, board);
+			updateBoard(ctx, args[0]); //args[0] will be the board
 			state = "idle";
 		},
 		chat: function(args)
 		{
-			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
+			appendChat("Player" + (parseInt(args[0]) + 1), args.slice(1).join(" "));
+			console.log("Player" + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
 	},
 	ended:
@@ -221,3 +231,27 @@ socket.onmessage = function(event)
 	if (process !== undefined)
 		process(args.slice(1));
 };
+
+
+function appendChat(name, text){
+	var iDiv = document.createElement("div");
+	iDiv.className = "chatLine";
+	var span = document.createElement("span");
+	span.className = "playerName";
+	span.innerHTML = name + ":";
+	iDiv.appendChild(span);
+	iDiv.innerHTML += text;
+	document.getElementById("chatLines").appendChild(iDiv);
+	document.getElementById("chatHistory").scrollTop = document.getElementById("chatHistory").scrollHeight;
+}
+
+
+
+
+
+
+
+
+
+
+

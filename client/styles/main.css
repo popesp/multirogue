@@ -1,4 +1,6 @@
-
+body {
+	margin: 0;
+}
 /*
 h1{
 	text-align: center;
@@ -6,25 +8,37 @@ h1{
 
 #gameCanvas{
 	border:10px solid #000000;
+
 }
 
 #gameContainer{
 	text-align: center;
+	width: 75%;
+	overflow: hidden;
+	float: left;
 }
 
-.blue {
-	background: #5A01FF;
+#chat {
+	width: 25%;
+	float: right;
+	
 }
-
-.red {
-	background: #C40C0C;
+#chatHistory{
+	height: 820px;
+	border:1px solid #000000;
+	overflow-y: scroll;
+	overflow-wrap: break-word;
 }
-
-.white{
-	background: #FFFFFF;
+#chat input{
+	width: 100%
 }
 
 #gameInfo {
 	font-size: 40;
 	text-align: center;
+}
+
+.playerName {
+	font-weight: bold;
+	margin-right: 8px;
 }
