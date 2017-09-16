@@ -54,9 +54,23 @@ server_websocket.on("request", function(request)
 				if (players[1] !== undefined)
 					players[1].send(message);
 			}
-			else if (args[0] === "place")
+			else if (args[0] === "place" && state === "game")
 			{
-				// process board state
+				const index_cell = parseInt(args[1]);
+				
+				if (index_cell < 0 || index_cell > 8)
+					connection.send("invalid");
+				else if (board[index_cell] !== 0)
+					connection.send("invalid");
+				else
+				{
+					board[index_cell] = connection.id_player + 1;
+					
+					const state = board.join("");
+					
+					connection.send("valid " + state);
+					players[+!connection.id_player].send("state " + state);
+				}
 			}
 		});
 		
