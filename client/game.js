@@ -153,7 +153,7 @@ const processes =
 		connected: function(args)
 		{
 			id_player = parseInt(args[0]);
-			updateBoard(ctx, args[0]); //args[0] will be the board
+			updateBoard(ctx, args[1]); //args[0] will be the board
 			updateGameInfoText("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
 			console.log("Connected as Player " + (id_player + 1) + ", waiting for another player to join...");
 			state = "waiting";
