@@ -22,14 +22,14 @@ server_websocket.on("request", function(request)
 		connection = players[0] = request.accept(null, request.origin);
 		connection.id_player = 0;
 		
-		connection.send("connected 0");
+		connection.send("connected 0 " + board.join(""));
 	}
 	else if (players[1] === undefined)
 	{
 		connection = players[1] = request.accept(null, request.origin);
 		connection.id_player = 1;
 		
-		connection.send("connected 1");
+		connection.send("connected 1 " + board.join(""));
 		
 		state = "game";
 		

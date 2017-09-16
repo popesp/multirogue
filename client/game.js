@@ -175,6 +175,10 @@ const processes =
 			updateBoard(ctx, board);
 			state = "turn";
 		},
+		ended: function(args)
+		{
+			const id_winningplayer = parseInt(args[0]);
+		},
 		chat: function(args)
 		{
 			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
@@ -202,6 +206,10 @@ const processes =
 		{
 			console.log("Player " + (parseInt(args[0]) + 1) + ": " + args.slice(1).join(" "));
 		}
+	},
+	ended:
+	{
+		
 	}
 };
 

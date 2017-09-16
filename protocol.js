@@ -10,5 +10,4 @@
 "state 001020201"
 "invalid"
 "valid"
-"win"
-"lose"
+"ended <id_player>"
